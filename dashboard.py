@@ -3,59 +3,55 @@ import pandas as pd
 from pathlib import Path
 import plotly.express as px
 import math
+from graphs import PisaGraphs
 
 
+# from components.metrics import Metrics, MedalsCountry
+from data import GetBasics, AvgCountry
+from graphs import PisaGraphs
 
-def read_data():
-    data_path = Path(__file__).parents[0] 
-    df = pd.read_csv(data_path / "Data" / "IceCreamData.csv")
-    return df
+pisa = GetBasics()
+#graph1 = PisaGraphs()
+mygraphs = PisaGraphs()
+myobj = AvgCountry()
+
+
 
 def layout():
+    st.markdown("# Pisa data")
+    st.markdown(
+        """
+        This dashboard shows Pisa results data.
+        The source of the dataset comes from here https://www.kaggle.com/datasets/thedevastator/pisa-performance-scores-by-country
+        
+        """
+    )
 
-    df = read_data()
-    st.title("Icecream Revenue Predictor")
+    st.markdown("## Basic data")
+    st.write(f"Thu number of records {pisa.therows}, number of contries {pisa.numbcontries}, and number of subjects {pisa.subjects}")
 
-    st.write("This is prediction of the Icecream revenue")
+    st.markdown("## Sample data")
+    st.dataframe(pisa.data.reindex())
 
-    X=df[['Temperature']]
-    y=df['Revenue']
+    st.header("Bar chart Pisa scores by country")
+
+    st.dataframe(myobj.score_contry)
+    #mygraphs.bar_average_country()
+
+    st.bar_chart(data=myobj.score_contry, y=['PISAMATH', 'PISAREAD','PISASCIENCE'], stack=False)
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=44)
-    regressor = RandomForestRegressor(n_estimators=10, random_state=0,oob_score=True)
+    #PisaGraphs.bar_average_country
 
-    regressor.fit(X, y)
-   
-    #oob_score = regressor.oob_score_
-    predictions = regressor.predict(X)
-    mse = mean_squared_error(y, predictions)
+    # read_css()
 
+# def read_css():
+    # css_path = Path(__file__).parent / "style.css"
 
-
-    st.write("The root mean squared error score on dataset is ", math.sqrt(mse))
-
-    number = st.number_input("Insert a number", step=0.5)
-    st.write("The current temperature is: ", number)
-
-    myval=[[number]]
-
-    pred=regressor.predict(myval)
-    
-    st.write("Revenue prediction is: ", pred[0])
-
-    st.header("Raw data")
-    st.write("This shows the raw data that is the basis for the prediction")
-    st.dataframe(df)
-    read_css()
-
-def read_css():
-    css_path = Path(__file__).parent / "style.css"
-
-    with open(css_path) as css:
-        st.markdown(
-            f"<style>{css.read()}</style>",
-            unsafe_allow_html=True,
-        )
+    # with open(css_path) as css:
+    #     st.markdown(
+    #         f"<style>{css.read()}</style>",
+    #         unsafe_allow_html=True,
+    #     )
 
 if __name__ == "__main__":
     # print(read_data())
